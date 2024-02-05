@@ -7,12 +7,9 @@ import {AiOutlinePlus} from "react-icons/ai"
 import { Slide } from "react-slideshow-image";
 import "react-slideshow-image/dist/styles.css";
 import styled from "styled-components";
-import { getHero } from "../utils";
 
-const Hero = ({isLiked=false}) => {
+const Hero = ({isLiked=false,heroData}) => {
     const [isPaused, setIsPaused] = useState(false);
-    const [hero, setHero] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
   
     const properties = {
@@ -22,19 +19,6 @@ const Hero = ({isLiked=false}) => {
       indicators: true,
       onChange: () => setIsPaused(false),
     };
-  
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const data = await getHero();
-          setHero(data.spotlightAnimes);
-          setIsLoading(false);
-        } catch (error) {
-          console.error('Error fetching recent releases:', error.message);
-        }
-      };
-      fetchData();
-    }, []);
   
     useEffect(() => {
       const sliderContainer = document.querySelector('.slide-container');
@@ -50,11 +34,7 @@ const Hero = ({isLiked=false}) => {
           sliderContainer.removeEventListener('touchstart', handleTouchStart);
         };
       }
-    }, [isLoading]); // Run this effect when isLoading changes
-  
-    if (isLoading) {
-      return <div>Loading...</div>;
-    }
+    }, []);
 
     const truncateText = (text, maxLength) => {
         if (text.length > maxLength) {
@@ -67,7 +47,7 @@ const Hero = ({isLiked=false}) => {
     <Container>
       <div className="slide-container">
         <Slide {...properties}>
-          {hero.map((h) => (
+          {heroData.map((h) => (
             <div key={h.rank} className="each-slide">
               <div className="to-flex">
                 <div className="text-content">

@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { firebaseAuth } from "../utils/firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
 import styled from "styled-components"
 import loader from "../assets/loader.gif"
 import Navbar from "../components/Navbar";
-import { getTVShows } from "../utils";
 import Card from "../components/Card";
+import { getSearchResults } from "../utils";
 
-export default function TVShows() {
-    const [tvshows, setTVshows] = useState([]);
+export default function Search() {
+    const [searchResults, setSearchResults] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
+
+    const location = useLocation();
+    const querySearch = new URLSearchParams(location.search).get('query');
 
     useEffect(() => {
         const fetchData = async () => {
           try {
-            const data = await getTVShows();
-            setTVshows(data.animes);
+            const data = await getSearchResults(querySearch);
+            setSearchResults(data.animes);
             setIsLoading(false);
           } catch (error) {
             console.error('Error fetching recent releases:', error.message);
@@ -25,7 +28,7 @@ export default function TVShows() {
           }
         };
         fetchData();
-      }, []);
+      }, [querySearch]);
 
     onAuthStateChanged(firebaseAuth, (currentUser) => {
         // if (currentUser) navigate("/login");
@@ -40,9 +43,9 @@ export default function TVShows() {
         <div className="navbar">
             <Navbar isScrolled={true}/>
         </div>
-        <div className="tvshows">
-        {tvshows.map((tv, index) => (
-          <Card key={index} animeData={tv} />
+        <div className="movies">
+        {searchResults.map((result, index) => (
+          <Card key={index} animeData={result} />
         ))}
       </div>
     </Container>
@@ -57,7 +60,7 @@ const Container = styled.div`
         position: absolute;
         z-index: 91;
     }
-    .tvshows {
+    .movies {
         
         margin-top: 5.5rem;
         display: flex;
@@ -66,7 +69,7 @@ const Container = styled.div`
         padding: 1rem;
   }
 
-  .tvshows > * {
+  .movies > * {
     flex: 0 0 calc(12.5% - 1rem);
     box-sizing: border-box;
   }

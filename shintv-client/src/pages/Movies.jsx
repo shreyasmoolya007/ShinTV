@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { firebaseAuth } from "../utils/firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
 import styled from "styled-components"
+import loader from "../assets/loader.gif"
 import Navbar from "../components/Navbar";
 import { getMovies } from "../utils";
 import Card from "../components/Card";
 
 export default function Movies() {
     const [movies, setMovies] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -16,8 +18,10 @@ export default function Movies() {
           try {
             const data = await getMovies();
             setMovies(data.animes);
+            setIsLoading(false);
           } catch (error) {
             console.error('Error fetching recent releases:', error.message);
+            setIsLoading(false);
           }
         };
         fetchData();
@@ -27,6 +31,11 @@ export default function Movies() {
         // if (currentUser) navigate("/login");
       });
   return (
+    <>
+    {
+      isLoading ? <LoaderContainer>
+        <img src={loader} alt="loader" className="loader" />
+      </LoaderContainer> : (
     <Container>
         <div className="navbar">
             <Navbar isScrolled={true}/>
@@ -37,6 +46,9 @@ export default function Movies() {
         ))}
       </div>
     </Container>
+    )
+    }
+    </>
   )
 }
 
@@ -58,4 +70,12 @@ const Container = styled.div`
     flex: 0 0 calc(12.5% - 1rem);
     box-sizing: border-box;
   }
+`;
+
+const LoaderContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: black;
 `;

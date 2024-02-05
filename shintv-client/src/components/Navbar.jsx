@@ -21,6 +21,12 @@ export default function Navbar({ isScrolled }) {
 
     const [showSearch, setShowSearch]  = useState(false)
     const [inputHover, setInputHover]  = useState(false)
+    const [searchInput, setSearchInput] = useState("");
+
+    const handleSearch = () => {
+        navigate(`/search?query=${searchInput}`)
+        setSearchInput("");
+    };
 
   return (
     <Container>
@@ -45,24 +51,28 @@ export default function Navbar({ isScrolled }) {
         <div className="right flex a-center">
             <div className={`search ${showSearch ? "show-search" : ""}`}>
                 <button 
+                    onClick={handleSearch}
                     onFocus={() => setShowSearch(true)} 
                     onBlur={() => {
                         if(!inputHover) {
                             setShowSearch(false);
                         }
-                    }
+                    }                  
                 }>
                     <FaSearch />
                 </button>
                 <input 
                     type="text" 
                     placeholder="Search" 
+                    value={searchInput}
                     onMouseEnter={() => setInputHover(true)}
                     onMouseLeave={() => setInputHover(false)}
                     onBlur={()=> {
                         setShowSearch(false);
                         setInputHover(false);
                     }}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    
                 />
             </div>
             <button onClick={() => signOut(firebaseAuth)}>

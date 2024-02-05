@@ -58,7 +58,7 @@ export const getMostPopular = async () => {
 
   export const getHero = async () => {
     try {
-      const response = await axios.get(`${SHIN_BASE_URL}/home`);
+      const response = await axios.get(`${SHIN_BASE_URL}/home `);
       const data = response.data;
       return data;
     } catch (error) {
@@ -66,3 +66,28 @@ export const getMostPopular = async () => {
       throw error;
     }
   };
+
+  export const getUserLikedAnimes = async (email) => {
+    try {
+      const response = await axios.get(`http://localhost:4000/api/user/liked/${email}`);
+      const animes  = response.data.animes;
+      console.log(response.data);
+      return animes;
+    } catch (error) {
+      console.error('Error fetching liked movies:', error.message);
+      throw error;
+    }
+  };
+
+  export const getSearchResults = async (query) => {
+    try {
+      const response = await axios.get(`${SHIN_BASE_URL}/search?q=${query} `);
+      const data = response.data;
+      console.log(response)
+      return data;
+    } catch (error) {
+      console.error('Error fetching recent releases:', error.message);
+      throw error;
+    }
+  };
+
