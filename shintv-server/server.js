@@ -8,7 +8,7 @@ const app = express();
 
 app.use(cors());
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: (process.env.CLIENT_PORT),
     methods: ['GET','HEAD','PUT','PATCH','POST','DELETE'],
     credentials: true,
   }));
@@ -33,6 +33,6 @@ app.get("/getSubtitle", async (req, res) => {
     }
 });
 
-app.listen(4000, () => {
+app.listen((process.env.PORT), () => {
   console.log(`Server started at port 4000`);
 });
