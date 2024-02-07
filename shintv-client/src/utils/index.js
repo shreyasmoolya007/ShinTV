@@ -71,7 +71,6 @@ export const getMostPopular = async () => {
     try {
       const response = await axios.get(`http://localhost:4000/api/user/liked/${email}`);
       const animes  = response.data.animes;
-      console.log(response.data);
       return animes;
     } catch (error) {
       console.error('Error fetching liked movies:', error.message);
@@ -83,7 +82,39 @@ export const getMostPopular = async () => {
     try {
       const response = await axios.get(`${SHIN_BASE_URL}/search?q=${query} `);
       const data = response.data;
-      console.log(response)
+      return data;
+    } catch (error) {
+      console.error('Error fetching recent releases:', error.message);
+      throw error;
+    }
+  };
+
+  export const getDetails = async (id) => {
+    try {
+      const response = await axios.get(`${SHIN_BASE_URL}/info?id=${id} `);
+      const data = response.data;
+      return data;
+    } catch (error) {
+      console.error('Error fetching recent releases:', error.message);
+      throw error;
+    }
+  };
+
+  export const getEpisodes = async (id) => {
+    try {
+      const response = await axios.get(`${SHIN_BASE_URL}/episodes/${id} `);
+      const data = response.data;
+      return data;
+    } catch (error) {
+      console.error('Error fetching recent releases:', error.message);
+      throw error;
+    }
+  };
+
+  export const getWatchDetails = async (id) => {
+    try {
+      const response = await axios.get(`${SHIN_BASE_URL}/episode-srcs?id=${id}&server=vidstreaming&category=sub `);
+      const data = response.data;
       return data;
     } catch (error) {
       console.error('Error fetching recent releases:', error.message);

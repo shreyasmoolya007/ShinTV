@@ -27,9 +27,6 @@ export default function TVShows() {
         fetchData();
       }, []);
 
-    onAuthStateChanged(firebaseAuth, (currentUser) => {
-        // if (currentUser) navigate("/login");
-      });
   return (
     <>
     {

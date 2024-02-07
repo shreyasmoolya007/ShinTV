@@ -27,9 +27,6 @@ export default function Movies() {
         fetchData();
       }, []);
 
-    onAuthStateChanged(firebaseAuth, (currentUser) => {
-        // if (currentUser) navigate("/login");
-      });
   return (
     <>
     {

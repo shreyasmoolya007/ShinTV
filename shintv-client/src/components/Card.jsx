@@ -35,7 +35,6 @@ export default React.memo(function Card({animeData, isLiked=false, removeFromLis
           console.log(err);
         }
       };
-
   return (
     <Container 
     onMouseEnter={() => setIsHovered(true)}
@@ -49,10 +48,10 @@ export default React.memo(function Card({animeData, isLiked=false, removeFromLis
                     <img 
                         src={animeData.poster}
                         alt="anime"
-                        onClick={() => navigate("/player")}
+                        onClick={() => navigate("/anime-details",{ state: { animeId: animeData.id } })}
                     />
                 </div>
-                <div className="info-container flex column">
+                <div className="info-container flex column" >
                     <h3 className="name" onClick={() => navigate("/player")}>{animeData.name}</h3>
                     <div className="icons flex j-between">
                         <div className="controls flex">

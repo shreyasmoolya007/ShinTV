@@ -30,9 +30,6 @@ export default function Search() {
         fetchData();
       }, [querySearch]);
 
-    onAuthStateChanged(firebaseAuth, (currentUser) => {
-        // if (currentUser) navigate("/login");
-      });
   return (
     <>
     {

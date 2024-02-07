@@ -57,7 +57,9 @@ const Hero = ({isLiked=false,heroData}) => {
                     <div className="controls flex">
                         <IoPlayCircleSharp
                           title="Watch Now"
-                          onClick={() => navigate("/player")}
+                          onClick={() => {
+                            navigate("/anime-details",{ state: { animeId: h.id } })}
+                          }
                         />
                         <RiThumbUpFill title="Like" />
                         <RiThumbDownFill title="Dislike" />
