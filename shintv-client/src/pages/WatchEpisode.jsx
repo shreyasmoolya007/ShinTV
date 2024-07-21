@@ -1,18 +1,17 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
-import videojs from 'video.js';
-import 'video.js/dist/video-js.css';
-import loader from "../assets/loader.gif";
+import ReactPlayer from "react-player";
+import loader from "../assets/loader.gif"
 import { getWatchDetails } from "../utils";
 import Navbar from "../components/Navbar";
 
 export default function WatchEpisode() {
+  const [videoSource, setVideoSource] = useState(null);
+  const [subtitleData, setSubtitleData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const episodeId = location.state?.episodeId;
-  const videoRef = useRef(null);
-  const playerRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,7 +19,14 @@ export default function WatchEpisode() {
         const data = await getWatchDetails(episodeId);
 
         if (data.sources.length > 0) {
-          initializePlayer(data.sources[0].url, data.tracks);
+          setVideoSource(data.sources[0].url);
+        }
+
+        if (data.tracks && data.tracks.length > 0) {
+          const defaultSubtitle = data.tracks.find(track => track.default && track.kind === "captions");
+          if (defaultSubtitle) {
+            setSubtitleData(defaultSubtitle.file);
+          }
         }
 
         setIsLoading(false);
@@ -32,29 +38,6 @@ export default function WatchEpisode() {
     fetchData();
   }, [episodeId]);
 
-  const initializePlayer = (videoUrl, tracks) => {
-    const videoOptions = {
-      autoplay: true,
-      controls: true,
-      sources: [{
-        src: videoUrl,
-        type: 'application/x-mpegURL'
-      }],
-      tracks: tracks.filter(track => track.kind === 'captions').map(track => ({
-        kind: 'captions',
-        src: track.file,
-        srclang: track.label,
-        label: track.label,
-        default: track.default
-      })),
-      fluid: true
-    };
-
-    playerRef.current = videojs(videoRef.current, videoOptions, function onPlayerReady() {
-      console.log('Player is ready');
-    });
-  };
-
   return (
     <>
     {
@@ -62,13 +45,33 @@ export default function WatchEpisode() {
         <img src={loader} alt="loader" className="loader" />
       </LoaderContainer> : (
     <Container>
-      <div className="navbar">
+    <div className="navbar">
         <Navbar isScrolled={true}/>
-      </div>
+    </div>
       <VideoContainer>
-        <div data-vjs-player>
-          <video ref={videoRef} className="video-js vjs-big-play-centered"></video>
-        </div>
+        {!isLoading && subtitleData && videoSource && (
+          <ReactPlayer
+            url={videoSource}
+            playing={true}
+            controls={true}
+            width="100%"
+            height="100%"
+            config={{
+              attributes: {
+                crossOrigin: "anonymous"
+              },
+              tracks: [
+                {
+                  kind: "subtitles",
+                  src: subtitleData,
+                  srcLang: "en",
+                  label: "English",
+                  default: true,
+                },
+              ],
+            }}
+          />
+        )}
       </VideoContainer>
     </Container>
     )
@@ -77,7 +80,9 @@ export default function WatchEpisode() {
   );
 }
 
-const Container = styled.div``;
+const Container = styled.div`
+  
+`;
 
 const VideoContainer = styled.div`
   margin-top: 6.5rem;
@@ -87,9 +92,9 @@ const VideoContainer = styled.div`
 `;
 
 const LoaderContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: black;
 `;
