@@ -1,92 +1,68 @@
-import React, { useEffect, useState } from "react"
+// UserLiked.jsx
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { firebaseAuth } from "../utils/firebase-config";
-import { onAuthStateChanged } from "firebase/auth";
-import styled from "styled-components"
-import loader from "../assets/loader.gif"
+import styled from "styled-components";
+import loader from "../assets/loader.gif";
 import Navbar from "../components/Navbar";
-import { getUserLikedAnimes } from "../utils";
 import Card from "../components/Card";
+import { useAppState } from "../context/AppStateContext";
+import { onAuthStateChanged } from "firebase/auth";
+import { firebaseAuth } from "../utils/firebase-config";
 
 export default function UserLiked() {
-    const [liked, setLiked] = useState([]);
-    const [email,setEmail] = useState(undefined)
-    const [isLoading, setIsLoading] = useState(true);
-    const navigate = useNavigate();
+  const { state, fetchUserLikedAnimes } = useAppState();
+  const navigate = useNavigate();
+  const email = state.userLiked.email;
+  const isLoading = state.userLiked.isLoading;
+  const liked = state.userLiked.list;
 
-    useEffect(() => {
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, (currentUser) => {
-    if (currentUser) {
-        setEmail(currentUser.email);
-        setIsLoading(false);
-        } else {
-            navigate("/login");
-            setIsLoading(false);
-        }
+      if (currentUser) {
+        fetchUserLikedAnimes(currentUser.email);
+      } else {
+        navigate("/login");
+      }
     });
     
     return () => {
-    unsubscribe();
+      unsubscribe();
     };
-    }, [navigate]);
+  }, [fetchUserLikedAnimes, navigate]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-          try {
-            const data = await getUserLikedAnimes(email);
-            setLiked(data);
-            setIsLoading(false);
-          } catch (error) {
-            console.error('Error fetching recent releases:', error.message);
-            setIsLoading(false);
-          }
-        };
-        if (email) {
-            fetchData();
-          }
-      
-      }, [email]);
-
-      const removeFromListCallback = async () => {
-        const newData = await getUserLikedAnimes(email);
-        setLiked(newData);
-    };
-    
-
-      return (
-        <>
-        {
-          isLoading ? <LoaderContainer>
-            <img src={loader} alt="loader" className="loader" />
-          </LoaderContainer> : (
+  return (
+    <>
+      {isLoading ? (
+        <LoaderContainer>
+          <img src={loader} alt="loader" className="loader" />
+        </LoaderContainer>
+      ) : (
         <Container>
-            <div className="navbar">
-                <Navbar isScrolled={true}/>
-            </div>
-            <div className="movies">
-            {liked.map((anime,index) => (
-              <Card key={index} animeData={anime} isLiked={true} removeFromListCallback={removeFromListCallback}/>
+          <div className="navbar">
+            <Navbar isScrolled={true} />
+          </div>
+          <div className="movies">
+            {liked.map((anime, index) => (
+              <Card key={index} animeData={anime} isLiked={true} />
             ))}
           </div>
         </Container>
-        )
-        }
-        </>
-      )
+      )}
+    </>
+  );
 }
 
 const Container = styled.div`
-    .navbar {
-        position: absolute;
-        z-index: 91;
-    }
-    .movies {
-        
-        margin-top: 5.5rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        padding: 1rem;
+  .navbar {
+    position: absolute;
+    z-index: 91;
+  }
+  .movies {
+    margin-top: 5.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
   }
 
   .movies > * {
