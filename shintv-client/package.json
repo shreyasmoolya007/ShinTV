@@ -9,6 +9,8 @@
     "axios": "^1.6.7",
     "firebase": "^10.8.0",
     "https-localhost": "^4.7.1",
+    "m3u8-parser": "^7.1.0",
+    "plyr": "^3.7.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.0.1",

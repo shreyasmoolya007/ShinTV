@@ -44,7 +44,7 @@ export default React.memo(function Card({animeData, isLiked=false, removeFromLis
       {
         isHovered && (
             <div className="hover">
-                <div className="image-video-conatiner">
+                <div className="image-video-container">
                     <img 
                         src={animeData.poster}
                         alt="anime"
@@ -111,12 +111,11 @@ const Container = styled.div`
             position: relative;
             img {
                 width: 100%;
-                height: 140px;
+                height: 300px;
                 object-fit: cover;
                 border-radius: 1rem;
                 top: 0;
                 z-index: 4;
-                position: absolute;
             }
         }
         .info-container {

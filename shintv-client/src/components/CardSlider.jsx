@@ -62,7 +62,7 @@ const Container = styled.div`
     }
     .slider-action {
       position: absolute;
-      z-index: 99;
+      z-index: 1;
       height: 100%;
       top: 0;
       bottom: 0;

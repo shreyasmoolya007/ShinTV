@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
-import ReactPlayer from "react-player";
-import loader from "../assets/loader.gif"
+import videojs from 'video.js';
+import 'video.js/dist/video-js.css';
+import loader from "../assets/loader.gif";
 import { getWatchDetails } from "../utils";
 import Navbar from "../components/Navbar";
 
 export default function WatchEpisode() {
-  const [videoSource, setVideoSource] = useState(null);
-  const [subtitleData, setSubtitleData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const episodeId = location.state?.episodeId;
+  const videoRef = useRef(null);
+  const playerRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,22 +20,7 @@ export default function WatchEpisode() {
         const data = await getWatchDetails(episodeId);
 
         if (data.sources.length > 0) {
-          setVideoSource(data.sources[0].url);
-        }
-
-        const englishSubtitleUrl = data.subtitles.find(subtitle => subtitle.lang === "English")?.url;
-
-        console.log(englishSubtitleUrl);
-
-        const subtitleFileResponse = await fetch(`http://localhost:4000/getSubtitle?subtitleUrl=${englishSubtitleUrl}`);
-
-        if (subtitleFileResponse.ok) {
-          const subtitle = await subtitleFileResponse.text();
-        
-          setSubtitleData(subtitle);
-          console.log("Subtitle Data:", subtitleData);
-        } else {
-          console.error("Subtitle request failed with status:", subtitleFileResponse.status);
+          initializePlayer(data.sources[0].url, data.tracks);
         }
 
         setIsLoading(false);
@@ -46,6 +32,29 @@ export default function WatchEpisode() {
     fetchData();
   }, [episodeId]);
 
+  const initializePlayer = (videoUrl, tracks) => {
+    const videoOptions = {
+      autoplay: true,
+      controls: true,
+      sources: [{
+        src: videoUrl,
+        type: 'application/x-mpegURL'
+      }],
+      tracks: tracks.filter(track => track.kind === 'captions').map(track => ({
+        kind: 'captions',
+        src: track.file,
+        srclang: track.label,
+        label: track.label,
+        default: track.default
+      })),
+      fluid: true
+    };
+
+    playerRef.current = videojs(videoRef.current, videoOptions, function onPlayerReady() {
+      console.log('Player is ready');
+    });
+  };
+
   return (
     <>
     {
@@ -53,36 +62,13 @@ export default function WatchEpisode() {
         <img src={loader} alt="loader" className="loader" />
       </LoaderContainer> : (
     <Container>
-    <div className="navbar">
+      <div className="navbar">
         <Navbar isScrolled={true}/>
-    </div>
+      </div>
       <VideoContainer>
-        {!isLoading && subtitleData && videoSource && (
-          <ReactPlayer
-            url={videoSource}
-            playing={true}
-            controls={true}
-            width="100%"
-            height="100%"
-            config={{
-            
-                attributes:{
-                  crossOrigin:"anonymous"
-                },
-                tracks: [
-                  {
-                    kind: "subtitles",
-                    src: subtitleData,
-                    srcLang: "en",
-                    label: "English",
-                    default: true,
-                  },
-                ],
-             
-            }}
-          />
-          
-        )}
+        <div data-vjs-player>
+          <video ref={videoRef} className="video-js vjs-big-play-centered"></video>
+        </div>
       </VideoContainer>
     </Container>
     )
@@ -91,20 +77,19 @@ export default function WatchEpisode() {
   );
 }
 
-const Container = styled.div`
-  
-`;
+const Container = styled.div``;
 
 const VideoContainer = styled.div`
+  margin-top: 6.5rem;
   margin-left: 15rem;
   height: 80vh;
   width: 70vw;
 `;
 
 const LoaderContainer = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: black;
 `;

@@ -51,7 +51,7 @@ const Hero = ({isLiked=false,heroData}) => {
             <div key={h.rank} className="each-slide">
               <div className="to-flex">
                 <div className="text-content">
-                  <h1>{h.name}</h1>
+                  <h1>{truncateText(h.name,40)}</h1>
                   <p>{truncateText(h.description, 300)}</p>
                   <div className="icons flex j-between">
                     <div className="controls flex">
@@ -104,6 +104,7 @@ const Container = styled.div`
                 width: 50%;
                 padding: 100px 20px;
                 position: absolute;
+                z-index: 6;
                 h1 {
                 font-size: 4em;
                 text-shadow: 1px 1px 8px #000;
@@ -120,6 +121,17 @@ const Container = styled.div`
                 img {
                     object-fit: cover;
                 }
+            }
+            &::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(to left, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 1) 100%);
+                z-index: 5;
+                pointer-events: none;
             }
             .icons {
               margin-top: 10px;

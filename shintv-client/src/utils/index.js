@@ -1,5 +1,6 @@
 import { SHIN_BASE_URL } from "./constants"
 import axios from "axios"
+const m3u8Parser = require('m3u8-parser');
 
 export const getTopAirings = async () => {
   try {
@@ -69,7 +70,7 @@ export const getMostPopular = async () => {
 
   export const getUserLikedAnimes = async (email) => {
     try {
-      const response = await axios.get(`http://localhost:4000/api/user/liked/${email}`);
+      const response = await axios.get(`https://shin-tv.onrender.com/api/user/liked/${email}`);
       const animes  = response.data.animes;
       return animes;
     } catch (error) {
@@ -113,7 +114,7 @@ export const getMostPopular = async () => {
 
   export const getWatchDetails = async (id) => {
     try {
-      const response = await axios.get(`${SHIN_BASE_URL}/episode-srcs?id=${id}&server=vidstreaming&category=sub `);
+      const response = await axios.get(`${SHIN_BASE_URL}/episode-srcs?id=${id}&server=hd-1&category=sub `);
       const data = response.data;
       return data;
     } catch (error) {
@@ -122,3 +123,30 @@ export const getMostPopular = async () => {
     }
   };
 
+  export const getVideoResolutions = async (manifestUrl) => {
+    try {
+        const response = await axios.get(manifestUrl);
+        const manifestContent = response.data;
+        
+        const parser = new m3u8Parser.Parser();
+        parser.push(manifestContent);
+        parser.end();
+        
+        const parsedManifest = parser.manifest;
+
+        if (parsedManifest && parsedManifest.playlists) {
+            const resolutions = parsedManifest.playlists.map(playlist => ({
+                resolution: playlist.attributes.RESOLUTION,
+                bitrate: playlist.attributes.BANDWIDTH,
+                uri: playlist.uri
+            }));
+            
+            return resolutions;
+        } else {
+            throw new Error('Invalid HLS manifest');
+        }
+    } catch (error) {
+        console.error('Error fetching or parsing HLS manifest:', error.message);
+        return null;
+    }
+};
